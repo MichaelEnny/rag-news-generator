@@ -316,19 +316,19 @@ export async function runPipeline(
   const startedAt = new Date().toISOString();
   const userId = options?.user?.userId ?? null;
 
-  await insertJobRun({
-    id: runId,
-    clerkUserId: userId,
-    stage,
-    status: "running",
-    trigger,
-    summary: {},
-    error: null,
-    startedAt,
-    finishedAt: null
-  });
-
   try {
+    await insertJobRun({
+      id: runId,
+      clerkUserId: userId,
+      stage,
+      status: "running",
+      trigger,
+      summary: {},
+      error: null,
+      startedAt,
+      finishedAt: null
+    });
+
     const summary =
       stage === "ingest"
         ? await runIngest(defaultProfile.digestWindowHours)
@@ -358,7 +358,11 @@ export async function runPipeline(
                     : await runCurationAndEmailForProfile((await getProfile(options?.user)) ?? defaultProfile, userId))
                 };
 
-    await updateJobRun(runId, "success", summary);
+    try {
+      await updateJobRun(runId, "success", summary);
+    } catch (error) {
+      console.error("Pipeline job completion write failed.", error);
+    }
 
     return {
       ok: true,
@@ -367,7 +371,12 @@ export async function runPipeline(
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown pipeline failure";
-    await updateJobRun(runId, "failed", {}, message);
+
+    try {
+      await updateJobRun(runId, "failed", {}, message);
+    } catch (writeError) {
+      console.error("Pipeline failure write failed.", writeError);
+    }
 
     return {
       ok: false,
