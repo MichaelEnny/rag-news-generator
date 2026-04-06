@@ -21,13 +21,15 @@ function normalizeDatabaseUrl(connectionString: string) {
 }
 
 export function getPool() {
-  if (!isDatabaseConfigured()) {
+  const connectionString = env.DATABASE_URL;
+
+  if (!isDatabaseConfigured() || !connectionString) {
     return null;
   }
 
   if (!pool) {
     pool = new Pool({
-      connectionString: normalizeDatabaseUrl(env.DATABASE_URL)
+      connectionString: normalizeDatabaseUrl(connectionString)
     });
     attachDatabasePool(pool);
   }
