@@ -3,15 +3,15 @@
   "crons": [
     {
       "path": "/api/cron/ingest",
-      "schedule": "0 */6 * * *"
+      "schedule": "0 6 * * *"
     },
     {
       "path": "/api/cron/digest",
-      "schedule": "15 */6 * * *"
+      "schedule": "30 6 * * *"
     },
     {
       "path": "/api/cron/email",
-      "schedule": "0 9 * * *"
+      "schedule": "0 7 * * *"
     }
   ],
   "functions": {
