@@ -38,6 +38,51 @@ const checklistItems = [
   "Email previews and sends stay tied to that person"
 ] as const;
 
+const journeyCards = [
+  {
+    step: "01",
+    route: "/sign-up",
+    title: "Create your account",
+    body: "Register once so the app can give you a personal workspace, delivery identity, and saved briefing context."
+  },
+  {
+    step: "02",
+    route: "/profile",
+    title: "Set your briefing profile",
+    body: "Add interests, expertise level, and delivery preferences so ranking and email output match what matters to you."
+  },
+  {
+    step: "03",
+    route: "/sources",
+    title: "Choose the sources to watch",
+    body: "Turn feeds on or off to shape the signal that enters your desk instead of consuming one generic stream."
+  },
+  {
+    step: "04",
+    route: "/pipeline",
+    title: "Run the pipeline",
+    body: "Use the Pipeline page as the control room for ingestion, digest generation, and delivery prep."
+  }
+] as const;
+
+const pipelineLanes = [
+  {
+    label: "Ingest",
+    title: "Pull fresh stories and transcripts",
+    body: "Collects the latest AI updates from the sources you activated."
+  },
+  {
+    label: "Digest",
+    title: "Condense the reading load",
+    body: "Turns long posts and videos into concise summaries you can scan quickly."
+  },
+  {
+    label: "Deliver",
+    title: "Prepare your personal issue",
+    body: "Ranks the strongest items for the signed-in user and builds an email-ready briefing."
+  }
+] as const;
+
 export default async function LandingPage() {
   const { userId } = await auth();
   const [metrics, sources] = await Promise.all([getDashboardMetrics(), getSources()]);
@@ -158,6 +203,76 @@ export default async function LandingPage() {
                   <p className="lp-step-body">{step.body}</p>
                 </article>
               ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="lp-onboard">
+          <div className="lp-container">
+            <div className="lp-section-label">How to use the app</div>
+            <div className="lp-onboard-grid">
+              <article className="lp-onboard-panel lp-onboard-panel--journey">
+                <div className="lp-onboard-head">
+                  <div>
+                    <p className="lp-feature-eyebrow">New user flow</p>
+                    <h2 className="lp-feature-title">The product teaches you the workflow.</h2>
+                  </div>
+                  <p className="lp-onboard-copy">
+                    The old command list is now translated into the actual product journey. A new user signs in, tunes
+                    a profile, selects sources, then runs the desk from Pipeline.
+                  </p>
+                </div>
+
+                <div className="lp-journey-stack">
+                  {journeyCards.map((card) => (
+                    <article key={card.step} className="lp-journey-card">
+                      <div className="lp-journey-index">
+                        <span className="lp-journey-step">{card.step}</span>
+                        <span className="lp-journey-line" aria-hidden="true" />
+                      </div>
+                      <div className="lp-journey-body">
+                        <span className="lp-route-pill">{card.route}</span>
+                        <h3>{card.title}</h3>
+                        <p>{card.body}</p>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </article>
+
+              <article className="lp-onboard-panel lp-onboard-panel--ops">
+                <div className="lp-onboard-head">
+                  <div>
+                    <p className="lp-feature-eyebrow lp-feature-eyebrow--amber">Pipeline control room</p>
+                    <h2 className="lp-feature-title">Pipeline is the main operating surface.</h2>
+                  </div>
+                  <p className="lp-onboard-copy">
+                    Once setup is complete, users do the important work in one place. The system flows from ingest to
+                    digest to delivery without exposing terminal commands.
+                  </p>
+                </div>
+
+                <div className="lp-ops-board">
+                  {pipelineLanes.map((lane) => (
+                    <div key={lane.label} className="lp-ops-lane">
+                      <div className="lp-ops-label-row">
+                        <span className="lp-ops-chip">{lane.label}</span>
+                        <span className="lp-ops-status">Run from /pipeline</span>
+                      </div>
+                      <h3>{lane.title}</h3>
+                      <p>{lane.body}</p>
+                    </div>
+                  ))}
+
+                  <div className="lp-ops-footer">
+                    <div className="lp-ops-outcome">
+                      <span className="lp-ops-outcome-label">Outcome</span>
+                      <strong>Personalized AI briefing, ready for the inbox</strong>
+                      <p>Curated for the signed-in user, previewed inside the app, then prepared for email delivery.</p>
+                    </div>
+                  </div>
+                </div>
+              </article>
             </div>
           </div>
         </section>
