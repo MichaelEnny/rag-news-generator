@@ -1,0 +1,22 @@
+{
+  "color": {
+    "canvas": "#f7f1e8",
+    "canvasStrong": "#efe3d3",
+    "ink950": "#0f1720",
+    "ink900": "#17222e",
+    "ink800": "#243241",
+    "ink700": "#34506a",
+    "rust500": "#b74f2b",
+    "rust600": "#8e3314",
+    "gold400": "#e7b53f",
+    "teal500": "#4e8f87",
+    "success500": "#2d7d53",
+    "warning500": "#b7791f",
+    "error500": "#a33a2f"
+  },
+  "font": {
+    "display": "Space Grotesk",
+    "body": "Source Sans 3",
+    "mono": "IBM Plex Mono"
+  }
+}
