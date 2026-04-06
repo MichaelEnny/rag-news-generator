@@ -13,24 +13,12 @@ import type {
 } from "@/lib/types";
 import { sql } from "@/lib/db";
 
-function isMissingRelationError(error: unknown) {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "code" in error &&
-    String((error as { code?: string }).code) === "42P01"
-  );
-}
-
 async function withDatabaseFallback<T>(query: () => Promise<T>, fallback: () => T | Promise<T>) {
   try {
     return await query();
   } catch (error) {
-    if (isMissingRelationError(error)) {
-      return fallback();
-    }
-
-    throw error;
+    console.error("Database read failed; using fallback data.", error);
+    return fallback();
   }
 }
 
@@ -310,11 +298,8 @@ export async function getDashboardMetrics() {
       lastRunStatus: (lastRunResult.rows[0]?.status as DashboardData["metrics"]["lastRunStatus"]) ?? "pending"
     };
   } catch (error) {
-    if (isMissingRelationError(error)) {
-      return sampleDashboardData.metrics;
-    }
-
-    throw error;
+    console.error("Database metrics query failed; using sample metrics.", error);
+    return sampleDashboardData.metrics;
   }
 }
 
