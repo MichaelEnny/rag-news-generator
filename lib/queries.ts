@@ -66,33 +66,45 @@ export async function getProfile(user?: AuthenticatedUserSeed) {
     };
   }
 
-  const result = await withDatabaseFallback(
-    () =>
-      sql<Record<string, unknown>>(
-        "select * from profiles where clerk_user_id = $1 or id = $1 order by created_at asc limit 1",
-        [user.userId]
-      ),
-    () => ({ rows: [] as Record<string, unknown>[] })
-  );
-  const row = result.rows[0];
+  const fallback = buildDefaultProfileForUser(user);
 
-  if (row) {
-    const profile = parseProfile(row);
+  try {
+    const result = await sql<Record<string, unknown>>(
+      "select * from profiles where clerk_user_id = $1 or id = $1 order by created_at asc limit 1",
+      [user.userId]
+    );
+    const row = result.rows[0];
 
-    if (!profile.deliveryEmail && user.email) {
-      await sql("update profiles set delivery_email = $2, updated_at = now() where id = $1", [profile.id, user.email]);
-      return {
-        ...profile,
-        deliveryEmail: user.email
-      };
+    if (row) {
+      const profile = parseProfile(row);
+
+      if (!profile.deliveryEmail && user.email) {
+        try {
+          await sql("update profiles set delivery_email = $2, updated_at = now() where id = $1", [profile.id, user.email]);
+        } catch (error) {
+          console.error("Profile email sync failed; using in-memory profile data.", error);
+        }
+
+        return {
+          ...profile,
+          deliveryEmail: user.email
+        };
+      }
+
+      return profile;
     }
 
-    return profile;
-  }
+    try {
+      await saveProfile(fallback, user.userId);
+    } catch (error) {
+      console.error("Profile bootstrap failed; using in-memory profile data.", error);
+    }
 
-  const fallback = buildDefaultProfileForUser(user);
-  await saveProfile(fallback, user.userId);
-  return fallback;
+    return fallback;
+  } catch (error) {
+    console.error("Profile query failed; using in-memory profile data.", error);
+    return fallback;
+  }
 }
 
 export async function getSources() {
