@@ -92,6 +92,7 @@ node_modules/
 .next/
 .npm-cache/
 package-lock.json
+tsconfig.tsbuildinfo
 
 # Alembic migrations
 app/alembic/versions/*
@@ -106,3 +107,4 @@ app/google-service-account.json
 /.clerk/
 
 .vercel
+.vercel-global/
